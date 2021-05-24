@@ -1,4 +1,4 @@
-import {ComplexNumber, drawArrow} from '/modules.js'
+import {ComplexNumber} from '/modules.js'
 import {fourierTransform, fourierFunction} from '/fourier.js'
 
 var canvas;
@@ -24,6 +24,8 @@ var tracePath = [];
 
 var timeScale = 1/100;
 
+var circles = false;
+
 //for testing purposes in console
 window.path = path;
 
@@ -31,6 +33,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOM fully loaded and parsed');
     canvas = document.getElementById("canvas");
     ctx = canvas.getContext('2d');
+    ctx.lineWidth = 0.8;
     canvas.addEventListener('mousedown', e => {
         // place first point in path
         if(startedPath === false){
@@ -126,16 +129,24 @@ function fourierCircleTrace(timeStamp){
         tracePath=[];
         startTime = timeStamp;
     }
-    var sums = fourierFunction(coefficients, dt, pathLength, true);
+    //partial sums of each frequency
+    var [sums, arrows] = fourierFunction(coefficients, dt, pathLength, true);
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
-    // graphComplexNumber(sums[1])
     ctx.beginPath();
     //draw arrows
-    for(let n=1;n<sums.length;n++){
-        // console.log("BRUH")
+    for(let n=2;n<sums.length;n++){
         let [x0, y0] = toCanvas(sums[n-1].re, sums[n-1].im);
         let [x1, y1] = toCanvas(sums[n].re, sums[n].im);
         drawArrow(x0, y0, x1, y1);
+        // if(circles){
+        //     ctx.stroke();
+        //     ctx.beginPath();
+        //     let ds = ComplexNumber.add(sums[n], sums[n-1].scale(-1));
+        //     ctx.arc(x0, y0, ds.radius, 0, 2*Math.PI);
+        //     ctx.lineWidth = 0.1;
+        //     ctx.stroke();
+        //     ctx.lineWidth=0.8;
+        // }
     }
     tracePath.push(sums[sums.length-1]);
     //draw path trace
@@ -151,15 +162,14 @@ function fourierCircleTrace(timeStamp){
 }
 
 function finishPath(){
-    if(path.length < 1){return 0}
+    if(path.length < 2){return 0}
     ctx.closePath();
     ctx.stroke();
     startedPath = false;
     //TODO: Calculate Fourier Transform
-    coefficients = fourierTransform(path, -25, 25);
+    coefficients = fourierTransform(path, -15, 15);
     pathLength = path.length;
     //begin animating
-    // fourierCircleTrace(12000);
     requestAnimationFrame(fourierCircleTrace);
 }
 function toPlane(x, y){
@@ -179,4 +189,25 @@ function graphComplexNumber(c){
     ctx.moveTo(x0, y0);
     ctx.lineTo(x, y);
     ctx.stroke();
+}
+function drawArrow(x0, y0, x1, y1, headlen=5) {
+    let context = ctx;
+    // var headlen = 1; // length of head in pixels
+    var dx = x1 - x0;
+    var dy = y1 - y0;
+    var theta = Math.atan2(dy, dx);
+    context.moveTo(x0, y0);
+    context.lineTo(x1, y1);
+    context.lineTo(x1 - headlen * Math.cos(theta - Math.PI / 6), y1 - headlen * Math.sin(theta - Math.PI / 6));
+    context.moveTo(x1, y1);
+    context.lineTo(x1 - headlen * Math.cos(theta + Math.PI / 6), y1 - headlen * Math.sin(theta + Math.PI / 6));
+}
+window.updateCircles = updateCircles
+function updateCircles(checkbox){
+    if(checkbox.checked){
+        circles = true;
+    }
+    else if(!checkbox.checked){
+        circles = false;
+    }
 }

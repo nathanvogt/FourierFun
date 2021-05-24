@@ -44,6 +44,3 @@ export function drawArrow(x0, y0, x1, y1, headlen=2) {
     context.moveTo(x1, y1);
     context.lineTo(x1 - headlen * Math.cos(theta + Math.PI / 6), y1 - headlen * Math.sin(theta + Math.PI / 6));
 }
-export function sortFrequencies(coefficients){
-    console.log(coefficients)
-}
