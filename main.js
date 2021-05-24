@@ -26,6 +26,8 @@ var timeScale = 1/100;
 
 var circles = false;
 
+var numOfK = 25;
+
 //for testing purposes in console
 window.path = path;
 
@@ -41,8 +43,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
             clearCurve();
             x = e.offsetX;
             y = e.offsetY;
-            ctx.beginPath();
-            ctx.moveTo(x, y);
             path.push(new ComplexNumber(toPlane(x, y)));
             startedPath = true;
             return 0;
@@ -54,10 +54,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
             // add new point only if it is a minimum distance from previous point
             let distance = Math.sqrt( (e.offsetX-x)*(e.offsetX-x) + (e.offsetY-y)*(e.offsetY-y) );
             if ( distance >= 5) {
+                ctx.beginPath();
+                ctx.moveTo(x, y);
                 x = e.offsetX;
                 y = e.offsetY;
                 path.push(new ComplexNumber(toPlane(x, y)));
                 ctx.lineTo(x, y);
+                ctx.lineWidth = 0.8;
                 ctx.stroke();
             }
         }
@@ -130,33 +133,29 @@ function fourierCircleTrace(timeStamp){
         startTime = timeStamp;
     }
     //partial sums of each frequency
-    var [sums, arrows] = fourierFunction(coefficients, dt, pathLength, true);
+    var [sums, _] = fourierFunction(coefficients, dt, pathLength, true);
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
-    ctx.beginPath();
     //draw arrows
     for(let n=2;n<sums.length;n++){
+        // let headLen = 2*5/n;
+        let headLen = 5
+        ctx.beginPath();
         let [x0, y0] = toCanvas(sums[n-1].re, sums[n-1].im);
         let [x1, y1] = toCanvas(sums[n].re, sums[n].im);
-        drawArrow(x0, y0, x1, y1);
-        // if(circles){
-        //     ctx.stroke();
-        //     ctx.beginPath();
-        //     let ds = ComplexNumber.add(sums[n], sums[n-1].scale(-1));
-        //     ctx.arc(x0, y0, ds.radius, 0, 2*Math.PI);
-        //     ctx.lineWidth = 0.1;
-        //     ctx.stroke();
-        //     ctx.lineWidth=0.8;
-        // }
+        drawArrow(x0, y0, x1, y1, headLen);
+        ctx.lineWidth = 2/n;
+        ctx.stroke();
     }
     tracePath.push(sums[sums.length-1]);
     //draw path trace
-    let [traceX, traceY] = toCanvas(tracePath[0].re, tracePath[0].im);
-    ctx.moveTo(traceX, traceY);
+    ctx.beginPath();
+    let [startX, startY] = toCanvas(tracePath[0].re, tracePath[0].im);
+    ctx.moveTo(startX, startY);
     for(let n=1;n<tracePath.length;n++){
-        let [oldX, oldY] = toCanvas(tracePath[n-1].re, tracePath[n-1].im);
         let [newX, newY] = toCanvas(tracePath[n].re, tracePath[n].im);
         ctx.lineTo(newX, newY);
     }
+    ctx.lineWidth = 0.8;
     ctx.stroke();
     frameReq = requestAnimationFrame(fourierCircleTrace);
 }
@@ -167,7 +166,7 @@ function finishPath(){
     ctx.stroke();
     startedPath = false;
     //TODO: Calculate Fourier Transform
-    coefficients = fourierTransform(path, -15, 15);
+    coefficients = fourierTransform(path, -numOfK, numOfK);
     pathLength = path.length;
     //begin animating
     requestAnimationFrame(fourierCircleTrace);
@@ -211,3 +210,12 @@ function updateCircles(checkbox){
         circles = false;
     }
 }
+ // if(circles){
+        //     ctx.stroke();
+        //     ctx.beginPath();
+        //     let ds = ComplexNumber.add(sums[n], sums[n-1].scale(-1));
+        //     ctx.arc(x0, y0, ds.radius, 0, 2*Math.PI);
+        //     ctx.lineWidth = 0.1;
+        //     ctx.stroke();
+        //     ctx.lineWidth=0.8;
+        // }
