@@ -18,7 +18,7 @@ export function fourierTransform(path, start, end){
     }
     return sortCoefficientsLength(coefficients);
 }
-function sortCoefficients(coefficients){
+function sortCoefficientsFrequency(coefficients){
     var sorted = new Array(coefficients.length);
     var middle = Math.floor(coefficients.length/2);
     sorted[0] = coefficients[middle];

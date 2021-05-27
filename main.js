@@ -22,16 +22,20 @@ var frameReq;
 
 var tracePath = [];
 
-var timeScale = 1/100;
+var timeScale = 1/150;
 
 var circles = false;
 
-var numOfK = 25;
+// var numOfK = 15;
+var startK = -15;
+var endK = 15;
+
+var fadeFactor = 1/80;
 
 //for testing purposes in console
 window.path = path;
 
-window.addEventListener('DOMContentLoaded', (event) => {
+document.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOM fully loaded and parsed');
     canvas = document.getElementById("canvas");
     ctx = canvas.getContext('2d');
@@ -79,6 +83,52 @@ document.addEventListener("keyup", function(e) {
         startedPath = false;
     }
 });
+window.changeStartK = changeStartK;
+function changeStartK(event){
+//checks on inputed value
+    //make sure entered value is less than end K
+    var value = parseInt(event.value);
+    if(value >= endK){
+        value = endK - 1;
+    }
+    document.getElementById("startK").value = value;
+    startK = value;
+    document.getElementById("K").value = endK - startK;
+}
+window.changeEndK = changeEndK;
+function changeEndK(event){
+//checks on inputed value
+    //make sure entered value is greater than starting k
+    var value = parseInt(event.value);
+    if(value <= startK){
+        value = startK + 1;
+    }
+    document.getElementById("endK").value = value;
+    endK = value;
+    document.getElementById("K").value = endK - startK;
+}
+window.changeK = changeK;
+function changeK(event){
+    var value = parseInt(event.value);
+    //make sure value is positive
+    if(value < 2){
+        value = 2;
+    }
+    else if(value % 2 === 1){
+        value ++;
+    }
+    document.getElementById("K").value = value;
+    document.getElementById("startK").value = -value/2;
+    document.getElementById("endK").value = value/2;
+    startK = -value/2;
+    endK = value/2;
+}
+window.changeTime = changeTime;
+function changeTime(event){
+    var value = parseFloat(event.value);
+    timeScale = 1/value;
+}
+
 function clearCurve(){
     cancelAnimationFrame(frameReq);
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
@@ -138,12 +188,12 @@ function fourierCircleTrace(timeStamp){
     //draw arrows
     for(let n=2;n<sums.length;n++){
         // let headLen = 2*5/n;
-        let headLen = 5
+        let headLen = 5-(1/10)*(n-2)
         ctx.beginPath();
         let [x0, y0] = toCanvas(sums[n-1].re, sums[n-1].im);
         let [x1, y1] = toCanvas(sums[n].re, sums[n].im);
         drawArrow(x0, y0, x1, y1, headLen);
-        ctx.lineWidth = 2/n;
+        ctx.lineWidth = 0.8-fadeFactor*(n-2);
         ctx.stroke();
     }
     tracePath.push(sums[sums.length-1]);
@@ -166,7 +216,7 @@ function finishPath(){
     ctx.stroke();
     startedPath = false;
     //TODO: Calculate Fourier Transform
-    coefficients = fourierTransform(path, -numOfK, numOfK);
+    coefficients = fourierTransform(path, startK, endK);
     pathLength = path.length;
     //begin animating
     requestAnimationFrame(fourierCircleTrace);
@@ -201,7 +251,7 @@ function drawArrow(x0, y0, x1, y1, headlen=5) {
     context.moveTo(x1, y1);
     context.lineTo(x1 - headlen * Math.cos(theta + Math.PI / 6), y1 - headlen * Math.sin(theta + Math.PI / 6));
 }
-window.updateCircles = updateCircles
+window.updateCircles = updateCircles;
 function updateCircles(checkbox){
     if(checkbox.checked){
         circles = true;
@@ -210,6 +260,9 @@ function updateCircles(checkbox){
         circles = false;
     }
 }
+
+
+
  // if(circles){
         //     ctx.stroke();
         //     ctx.beginPath();
