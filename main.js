@@ -23,14 +23,24 @@ var frameReq;
 var tracePath = [];
 
 var timeScale = 1/150;
+var prevTimeScale = timeScale;
+var offset = 0;
 
-var circles = false;
+var timeOffset = 0;
+
+var prevTime;
+
+var circles = true;
+
+var showArrows = true;
 
 // var numOfK = 15;
 var startK = -15;
 var endK = 15;
 
 var fadeFactor = 1/80;
+
+var traceColor = "#00ffff";
 
 //for testing purposes in console
 window.path = path;
@@ -83,6 +93,11 @@ document.addEventListener("keyup", function(e) {
         startedPath = false;
     }
 });
+window.toggleArrows = toggleArrows;
+function toggleArrows(event){
+    // console.log(event.checked)
+    showArrows = event.checked;
+}
 window.changeStartK = changeStartK;
 function changeStartK(event){
 //checks on inputed value
@@ -126,7 +141,12 @@ function changeK(event){
 window.changeTime = changeTime;
 function changeTime(event){
     var value = parseFloat(event.value);
+    prevTimeScale = timeScale;
     timeScale = 1/value;
+}
+window.setTraceColor = setTraceColor;
+function setTraceColor(event){
+    traceColor = event.value;
 }
 
 function clearCurve(){
@@ -153,7 +173,7 @@ function fourierTrace(timeStamp){
     }
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
     ctx.beginPath();
-    var dt = (timeStamp-startTime)*timeScale;
+    var dt = (timeStamp-startTime)*timeScale+timeOffset;
     if(dt >=  path.length){
         tracePath=[];
         startTime = timeStamp;
@@ -177,7 +197,7 @@ function fourierCircleTrace(timeStamp){
     if(startTime === false){
         startTime=timeStamp
     }
-    var dt = (timeStamp-startTime)*timeScale;
+    var dt = (timeStamp-startTime)*(timeScale);
     if(dt >=  path.length){
         tracePath=[];
         startTime = timeStamp;
@@ -186,16 +206,26 @@ function fourierCircleTrace(timeStamp){
     var [sums, _] = fourierFunction(coefficients, dt, pathLength, true);
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
     //draw arrows
-    for(let n=2;n<sums.length;n++){
-        // let headLen = 2*5/n;
-        let headLen = 5-(1/10)*(n-2)
-        ctx.beginPath();
-        let [x0, y0] = toCanvas(sums[n-1].re, sums[n-1].im);
-        let [x1, y1] = toCanvas(sums[n].re, sums[n].im);
-        drawArrow(x0, y0, x1, y1, headLen);
-        ctx.lineWidth = 0.8-fadeFactor*(n-2);
-        ctx.stroke();
+    if(showArrows){
+        for(let n=2;n<sums.length;n++){
+            // let headLen = 2*5/n;
+            let headLen = 8-(1/10)*(n-2)
+            ctx.beginPath();
+            let [x0, y0] = toCanvas(sums[n-1].re, sums[n-1].im);
+            let [x1, y1] = toCanvas(sums[n].re, sums[n].im);
+            drawArrow(x0, y0, x1, y1, headLen);
+            ctx.lineWidth = 0.8-fadeFactor*(n-2);
+            ctx.stroke();
+            if(circles && n <= 150){
+                ctx.beginPath();
+                let radius = ComplexNumber.add(sums[n], sums[n-1].scale(-1)).radius;
+                ctx.arc(x0, y0, radius, 0, 2*Math.PI);
+                ctx.lineWidth = 0.2;
+                ctx.stroke();
+            }
+        }
     }
+    
     tracePath.push(sums[sums.length-1]);
     //draw path trace
     ctx.beginPath();
@@ -206,7 +236,9 @@ function fourierCircleTrace(timeStamp){
         ctx.lineTo(newX, newY);
     }
     ctx.lineWidth = 0.8;
+    ctx.strokeStyle = traceColor;
     ctx.stroke();
+    ctx.strokeStyle = "#000000";
     frameReq = requestAnimationFrame(fourierCircleTrace);
 }
 
@@ -240,6 +272,7 @@ function graphComplexNumber(c){
     ctx.stroke();
 }
 function drawArrow(x0, y0, x1, y1, headlen=5) {
+    if(headlen < 0){headlen = 0}
     let context = ctx;
     // var headlen = 1; // length of head in pixels
     var dx = x1 - x0;
@@ -252,23 +285,7 @@ function drawArrow(x0, y0, x1, y1, headlen=5) {
     context.lineTo(x1 - headlen * Math.cos(theta + Math.PI / 6), y1 - headlen * Math.sin(theta + Math.PI / 6));
 }
 window.updateCircles = updateCircles;
-function updateCircles(checkbox){
-    if(checkbox.checked){
-        circles = true;
-    }
-    else if(!checkbox.checked){
-        circles = false;
-    }
+function updateCircles(event){
+    circles = event.checked;
 }
 
-
-
- // if(circles){
-        //     ctx.stroke();
-        //     ctx.beginPath();
-        //     let ds = ComplexNumber.add(sums[n], sums[n-1].scale(-1));
-        //     ctx.arc(x0, y0, ds.radius, 0, 2*Math.PI);
-        //     ctx.lineWidth = 0.1;
-        //     ctx.stroke();
-        //     ctx.lineWidth=0.8;
-        // }

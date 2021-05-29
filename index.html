@@ -7,14 +7,16 @@
     </canvas>
     <button>Done</button>
     <!-- <h6>or hit Enter</h6> -->
-    <input id="circles" type="checkbox" value="off" onchange="updateCircles(this)">
+    <input id="circles" type="checkbox" checked="true" onchange="updateCircles(this)">
+    <input id="showArrows" type="checkbox" checked="true" onchange="toggleArrows(this)">
     <input type="number" id="startK" name="Starting Frequency"
        min="-200" max="199" step="1" value="-15" oninput="changeStartK(this)">
     <input type="number" id="endK" name="Ending Frequency"
        min="-199" max="200" step="1" value="15" oninput="changeEndK(this)">
     <input type="number" id="K" name="Number of Frequencies"
-       min="2" max="200" step="2" value="30" oninput="changeK(this)">
+       min="2" max="400" step="2" value="30" onchange="changeK(this)">
     <input type="range" min="1" max="300" value="100" class="slider" id="timeScale"
      oninput="this.nextElementSibling.value = this.value; changeTime(this)">
     <output name="result">100</output>
+    <input type="color" id="drawColor" value="#00ffff" onchange="setTraceColor(this)">
 </body>
