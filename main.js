@@ -23,12 +23,7 @@ var frameReq;
 var tracePath = [];
 
 var timeScale = 1/150;
-var prevTimeScale = timeScale;
-var offset = 0;
-
-var timeOffset = 0;
-
-var prevTime;
+var timeScaleChanged = false;
 
 var circles = true;
 
@@ -93,61 +88,6 @@ document.addEventListener("keyup", function(e) {
         startedPath = false;
     }
 });
-window.toggleArrows = toggleArrows;
-function toggleArrows(event){
-    // console.log(event.checked)
-    showArrows = event.checked;
-}
-window.changeStartK = changeStartK;
-function changeStartK(event){
-//checks on inputed value
-    //make sure entered value is less than end K
-    var value = parseInt(event.value);
-    if(value >= endK){
-        value = endK - 1;
-    }
-    document.getElementById("startK").value = value;
-    startK = value;
-    document.getElementById("K").value = endK - startK;
-}
-window.changeEndK = changeEndK;
-function changeEndK(event){
-//checks on inputed value
-    //make sure entered value is greater than starting k
-    var value = parseInt(event.value);
-    if(value <= startK){
-        value = startK + 1;
-    }
-    document.getElementById("endK").value = value;
-    endK = value;
-    document.getElementById("K").value = endK - startK;
-}
-window.changeK = changeK;
-function changeK(event){
-    var value = parseInt(event.value);
-    //make sure value is positive
-    if(value < 2){
-        value = 2;
-    }
-    else if(value % 2 === 1){
-        value ++;
-    }
-    document.getElementById("K").value = value;
-    document.getElementById("startK").value = -value/2;
-    document.getElementById("endK").value = value/2;
-    startK = -value/2;
-    endK = value/2;
-}
-window.changeTime = changeTime;
-function changeTime(event){
-    var value = parseFloat(event.value);
-    prevTimeScale = timeScale;
-    timeScale = 1/value;
-}
-window.setTraceColor = setTraceColor;
-function setTraceColor(event){
-    traceColor = event.value;
-}
 
 function clearCurve(){
     cancelAnimationFrame(frameReq);
@@ -173,7 +113,7 @@ function fourierTrace(timeStamp){
     }
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
     ctx.beginPath();
-    var dt = (timeStamp-startTime)*timeScale+timeOffset;
+    var dt = (timeStamp-startTime)*timeScale;
     if(dt >=  path.length){
         tracePath=[];
         startTime = timeStamp;
@@ -198,6 +138,11 @@ function fourierCircleTrace(timeStamp){
         startTime=timeStamp
     }
     var dt = (timeStamp-startTime)*(timeScale);
+    if(timeScaleChanged === true){
+        tracePath = []
+        ctx.clearRect(0, 0, WIDTH, HEIGHT);
+        timeScaleChanged = false;
+    }
     if(dt >=  path.length){
         tracePath=[];
         startTime = timeStamp;
@@ -225,7 +170,6 @@ function fourierCircleTrace(timeStamp){
             }
         }
     }
-    
     tracePath.push(sums[sums.length-1]);
     //draw path trace
     ctx.beginPath();
@@ -288,4 +232,58 @@ window.updateCircles = updateCircles;
 function updateCircles(event){
     circles = event.checked;
 }
-
+window.toggleArrows = toggleArrows;
+function toggleArrows(event){
+    // console.log(event.checked)
+    showArrows = event.checked;
+}
+window.changeStartK = changeStartK;
+function changeStartK(event){
+//checks on inputed value
+    //make sure entered value is less than end K
+    var value = parseInt(event.value);
+    if(value >= endK){
+        value = endK - 1;
+    }
+    document.getElementById("startK").value = value;
+    startK = value;
+    document.getElementById("K").value = endK - startK;
+}
+window.changeEndK = changeEndK;
+function changeEndK(event){
+//checks on inputed value
+    //make sure entered value is greater than starting k
+    var value = parseInt(event.value);
+    if(value <= startK){
+        value = startK + 1;
+    }
+    document.getElementById("endK").value = value;
+    endK = value;
+    document.getElementById("K").value = endK - startK;
+}
+window.changeK = changeK;
+function changeK(event){
+    var value = parseInt(event.value);
+    //make sure value is positive
+    if(value < 2){
+        value = 2;
+    }
+    else if(value % 2 === 1){
+        value ++;
+    }
+    document.getElementById("K").value = value;
+    document.getElementById("startK").value = -value/2;
+    document.getElementById("endK").value = value/2;
+    startK = -value/2;
+    endK = value/2;
+}
+window.changeTime = changeTime;
+function changeTime(event){
+    var value = parseFloat(event.value);
+    timeScale = 1/value;
+    timeScaleChanged = true;
+}
+window.setTraceColor = setTraceColor;
+function setTraceColor(event){
+    traceColor = event.value;
+}
