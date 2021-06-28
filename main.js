@@ -4,8 +4,10 @@ import {fourierTransform, fourierFunction} from '/fourier.js'
 var canvas;
 var ctx;
 
-const WIDTH = 1000;
-const HEIGHT = 500;
+var settingsOverlay;
+
+var WIDTH;
+var HEIGHT;
 
 let x = 0;
 let y = 0;
@@ -35,6 +37,7 @@ var endK = 15;
 
 var fadeFactor = 1/80;
 
+//default trace color
 var traceColor = "#00ffff";
 
 //for testing purposes in console
@@ -42,9 +45,21 @@ window.path = path;
 
 document.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOM fully loaded and parsed');
+    settingsOverlay = document.getElementById("settings");
     canvas = document.getElementById("canvas");
+    //set canvas width
+    WIDTH = Math.floor(window.innerWidth*0.97);
+    HEIGHT = Math.floor(window.innerHeight*0.86);
+    canvas.width = WIDTH;
+    canvas.height = HEIGHT;
+    //get canvas context
     ctx = canvas.getContext('2d');
     ctx.lineWidth = 0.8;
+    initGlobalListeners();
+});
+
+function initGlobalListeners(){
+    //mouse listeners
     canvas.addEventListener('mousedown', e => {
         // place first point in path
         if(startedPath === false){
@@ -74,20 +89,36 @@ document.addEventListener('DOMContentLoaded', (event) => {
             }
         }
     });
-});
-// global key released listener
-document.addEventListener("keyup", function(e) {
-    // console.log(e.key)
-    if(e.key === "Enter"){
-        if(startedPath === true){
-            finishPath();
+    // global key released listener
+    document.addEventListener("keyup", function(e) {
+        // console.log(e.key)
+        if(e.key === "Enter"){
+            window.enter();
         }
+        if(e.key === "c"){
+            window.c();
+        }
+    });
+}
+//enter button onCLick
+window.enter = function(){
+    if(startedPath === true){
+        finishPath();
     }
-    if(e.key === "c"){
-        clearCurve();
-        startedPath = false;
-    }
-});
+}
+//clear button onClick
+window.c = function(){
+    clearCurve();
+    startedPath = false;
+}
+//settings button onClick
+window.openSettings = function(){
+    settingsOverlay.style.height = "100%";
+}
+window.closeSettings = function(){
+    settingsOverlay.style.height = "0%";
+}
+
 
 function clearCurve(){
     cancelAnimationFrame(frameReq);
@@ -138,6 +169,7 @@ function fourierCircleTrace(timeStamp){
         startTime=timeStamp
     }
     var dt = (timeStamp-startTime)*(timeScale);
+    // shadowPoint = (prevTimeStamp-startTime)*(prevTimeScale)
     if(timeScaleChanged === true){
         tracePath = []
         ctx.clearRect(0, 0, WIDTH, HEIGHT);
