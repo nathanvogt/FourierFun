@@ -23,29 +23,37 @@
          <div id="settings-buttons">
 
             <div class="settings-row">
-               <h2>Show Circles</h2>
+               <h1>Settings</h1>
+            </div>
+            <div class="settings-row">
+               <h2>Show Circles:</h2>
                <input id="circles" type="checkbox" checked="true" onchange="updateCircles(this)">
             </div>
             <div class="settings-row">
-               <h2>Show Arrows</h2>
+               <h2>Show Arrows:</h2>
                <input id="showArrows" type="checkbox" checked="true" onchange="toggleArrows(this)">
             </div>
             <div class="settings-row">
+               <h2>First Frequency:</h2>
                <input type="number" id="startK" name="Starting Frequency"
                min="-200" max="199" step="1" value="-15" oninput="changeStartK(this)">
+               <h2>Final Frequency:</h2>
                <input type="number" id="endK" name="Ending Frequency"
                min="-199" max="200" step="1" value="15" oninput="changeEndK(this)">
             </div>
             <div class="settings-row">
+               <h2>Number of Circles:</h2>
                <input type="number" id="K" name="Number of Frequencies"
                min="2" max="400" step="2" value="30" onchange="changeK(this)">
             </div>
             <div class="settings-row">
+               <h2>Time Scale:</h2>
                <input type="range" min="5" max="300" value="100" class="slider" id="timeScale"
-               oninput="this.nextElementSibling.value = this.value; changeTime(this)">
-               <output name="result" id="color-result">100</output>
+               oninput="this.nextElementSibling.innerHTML = this.value; changeTime(this)">
+               <p name="result" id="time-result">100</p>
             </div>
             <div class="settings-row">
+               <h2>Curve Color</h2>
                <input type="color" id="drawColor" value="#00ffff" onchange="setTraceColor(this)">
             </div>
          

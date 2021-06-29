@@ -1,4 +1,7 @@
-
+html {
+    font-family: Arial, Helvetica, sans-serif;
+    color: #dae0e0;
+}
 
 #canvas {
     display: block;
@@ -32,17 +35,17 @@ button {
 }
 
 #settings {
-    background-color: rgba(0,0,0, 0.4);
+    background-color: rgba(0,0,0, 0.6);
     position: fixed;
     left: 0;
     top: 0;
     width: 100%;
     height: 0%;
-    transition: 0.5s;
+    transition: 0.40s;
     overflow-y: hidden;
 }
 #settings-buttons {
-    top: 20px;
+    top: 10%;
     position: relative;
     text-align: center;
     height: 100%;
@@ -63,13 +66,38 @@ button {
 
 .settings-row {
     text-align: center;
-    padding: 15px 0;
-    
+    margin-bottom: 20px;
+}
+.settings-row * {
+    vertical-align: middle;
 }
 
-#color-result {
+#timescale {
+    width: 200px;
+}
+#time-result {
+    display: inline-block;
+    width: 75px;
+    color: black;
     background: white;
     padding: 2px 3px;
     border-radius: 3px;
 }
 
+h2 {
+    display: inline;
+}
+
+#circles, #showArrows {
+    border-radius: 5px;
+    width: 30px;
+    height: 30px;
+}
+
+#startK, #endK, #K {
+    font-size: 18px;
+}
+
+#startK {
+    margin-right: 15px;
+}
