@@ -52,16 +52,19 @@ document.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOM fully loaded and parsed');
     settingsOverlay = document.getElementById("settings");
     canvas = document.getElementById("canvas");
-    //set canvas width
-    WIDTH = Math.floor(window.innerWidth*0.97);
-    HEIGHT = Math.floor(window.innerHeight*0.86);
-    canvas.width = WIDTH;
-    canvas.height = HEIGHT;
+    //set canvas dimensinos
+    resizeCanvas();
     //get canvas context
     ctx = canvas.getContext('2d');
     ctx.lineWidth = 0.8;
     initGlobalListeners();
 });
+function resizeCanvas(){
+    WIDTH = Math.floor(window.innerWidth*0.97);
+    HEIGHT = Math.floor(window.innerHeight*0.86);
+    canvas.width = WIDTH;
+    canvas.height = HEIGHT;
+}
 
 function initGlobalListeners(){
     //mouse listeners
@@ -109,6 +112,10 @@ function initGlobalListeners(){
             else if(!settingsOpen){openSettings();}
         }
     });
+    //resize listener
+    window.addEventListener('resize', function(e){
+        resizeCanvas();
+    })
 }
 
 function clearCurve(){
