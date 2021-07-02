@@ -1,22 +1,31 @@
 import {ComplexNumber} from '/modules.js'
 
+//get coefficient for frequency k
 export function fourierCoefficient(path, k){
+    //start sum at zero (complex number)
     let sum = new ComplexNumber([0, 0]);
+    //integral of path times silencer
     for(let t=0;t<path.length;t++){
         // sum += e^i2pik(t/path.length)*path[t]
+        //exponent for euler complex form
         let theta = -2*Math.PI*k*t/path.length;
+        //silencer made from theta of radius 1
         let silencer = new ComplexNumber([theta, 1], true);
+        //path step times silencer
         let step = ComplexNumber.multiply(silencer, path[t]);
+        //add to the sum
         sum = ComplexNumber.add(sum, step)
     }
     return sum.scale(1/path.length);
 }
+//get coefficients for frequencies between start and end
 export function fourierTransform(path, start, end){
     var coefficients = [];
     for(let k=start;k<end+1;k++){
         coefficients.push([fourierCoefficient(path, k), k]);
     }
     return sortCoefficientsLength(coefficients);
+    return coefficients;
 }
 function sortCoefficientsFrequency(coefficients){
     var sorted = new Array(coefficients.length);
@@ -31,6 +40,7 @@ function sortCoefficientsFrequency(coefficients){
     }
     return sorted;
 }
+//sort coefficients by radius (the zero frequency arrow at 0 index)
 function sortCoefficientsLength(coefficients){
     var sorted = [];
     var middle = Math.floor(coefficients.length/2);
@@ -42,20 +52,26 @@ function sortCoefficientsLength(coefficients){
     sorted = [...sorted, ...coefficients];
     return sorted
 }
-export function fourierFunction(coefficients, t, N, arrows=false){
+//output of fourier approximation of original path for t
+export function fourierFunction(coefficients, t, N){
+    //track the sum after each coefficient is computed (for drawing arrows)
     let sums = [];
-    let steps = [];
+    //start sum at zero (complex number)
     let sum = new ComplexNumber([0, 0]);
     sums.push(sum);
     for (let n=0;n<coefficients.length;n++){
+        //unpack the coefficient and its respective frequency
         let [c, k] = coefficients[n];
+        //compute theta for this input t
         let theta = 2*Math.PI*k*t/N;
+        //create euler complex number from theta
         let ei = new ComplexNumber([theta, 1], true);
+        //multiply by coefficient
         let step = ComplexNumber.multiply(c, ei).scale(1/N);
-        steps.push(step);
+        //add to the total sum
         sum = ComplexNumber.add(sum, step);
+        //add to the partial sums
         sums.push(sum);
     }
-    if(arrows){return [sums, steps]}
-    return sum;
+    return sums;
 }

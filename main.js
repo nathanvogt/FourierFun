@@ -35,10 +35,15 @@ var showArrows = true;
 var startK = -15;
 var endK = 15;
 
+var displayStartK = -15;
+var displayEndK = 15;
+
 var fadeFactor = 1/80;
 
 //default trace color
 var traceColor = "#00ffff";
+
+var settingsOpen = false;
 
 //for testing purposes in console
 window.path = path;
@@ -98,27 +103,13 @@ function initGlobalListeners(){
         if(e.key === "c"){
             window.c();
         }
+        //toggle settings
+        if(e.key === "s"){
+            if(settingsOpen){closeSettings();}
+            else if(!settingsOpen){openSettings();}
+        }
     });
 }
-//enter button onCLick
-window.enter = function(){
-    if(startedPath === true){
-        finishPath();
-    }
-}
-//clear button onClick
-window.c = function(){
-    clearCurve();
-    startedPath = false;
-}
-//settings button onClick
-window.openSettings = function(){
-    settingsOverlay.style.height = "100%";
-}
-window.closeSettings = function(){
-    settingsOverlay.style.height = "0%";
-}
-
 
 function clearCurve(){
     cancelAnimationFrame(frameReq);
@@ -136,7 +127,6 @@ function fourierSketch(coefficients, N){
         graphComplexNumber(step);
     }
 }
-
 
 function fourierTrace(timeStamp){
     if(startTime === false){
@@ -165,24 +155,36 @@ function fourierTrace(timeStamp){
     frameReq = requestAnimationFrame(fourierTrace);
 }
 function fourierCircleTrace(timeStamp){
+    //start rendering circles
     if(startTime === false){
         startTime=timeStamp
     }
     var dt = (timeStamp-startTime)*(timeScale);
-    // shadowPoint = (prevTimeStamp-startTime)*(prevTimeScale)
+     //clear curve when timescale is changed
     if(timeScaleChanged === true){
         tracePath = []
         ctx.clearRect(0, 0, WIDTH, HEIGHT);
         timeScaleChanged = false;
     }
+    //reset dt after a full period
     if(dt >=  path.length){
         tracePath=[];
         startTime = timeStamp;
     }
     //partial sums of each frequency
-    var [sums, _] = fourierFunction(coefficients, dt, pathLength, true);
+    var sums = fourierFunction(coefficients, dt, pathLength, true);
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
     //draw arrows
+    if(showArrows){drawArrowsAndCircles(sums);}
+    //add current t output to the trace path
+    tracePath.push(sums[sums.length-1]);
+    //draw path trace
+    drawTracePath();
+    //TODO:
+    //optional: draw original path
+    frameReq = requestAnimationFrame(fourierCircleTrace);
+}
+function drawArrowsAndCircles(sums){
     if(showArrows){
         for(let n=2;n<sums.length;n++){
             // let headLen = 2*5/n;
@@ -202,8 +204,8 @@ function fourierCircleTrace(timeStamp){
             }
         }
     }
-    tracePath.push(sums[sums.length-1]);
-    //draw path trace
+}
+function drawTracePath(){
     ctx.beginPath();
     let [startX, startY] = toCanvas(tracePath[0].re, tracePath[0].im);
     ctx.moveTo(startX, startY);
@@ -215,15 +217,15 @@ function fourierCircleTrace(timeStamp){
     ctx.strokeStyle = traceColor;
     ctx.stroke();
     ctx.strokeStyle = "#000000";
-    frameReq = requestAnimationFrame(fourierCircleTrace);
 }
+
+//OPTIMIZATION: save calculated coefficients and only calculate new coefficients
 
 function finishPath(){
     if(path.length < 2){return 0}
     ctx.closePath();
     ctx.stroke();
     startedPath = false;
-    //TODO: Calculate Fourier Transform
     coefficients = fourierTransform(path, startK, endK);
     pathLength = path.length;
     //begin animating
@@ -234,18 +236,6 @@ function toPlane(x, y){
 }
 function toCanvas(x, y){
     return [x+WIDTH/2, HEIGHT/2-y];
-}
-
-// for testing purposes from console
-function graphComplexNumber(c){
-    let canvas = document.getElementById("canvas");
-    let ctx = canvas.getContext('2d');
-    let [x, y] = toCanvas(c.re, c.im);
-    let [x0, y0] = toCanvas(0, 0);
-    ctx.beginPath(x0, y0);
-    ctx.moveTo(x0, y0);
-    ctx.lineTo(x, y);
-    ctx.stroke();
 }
 function drawArrow(x0, y0, x1, y1, headlen=5) {
     if(headlen < 0){headlen = 0}
@@ -260,6 +250,20 @@ function drawArrow(x0, y0, x1, y1, headlen=5) {
     context.moveTo(x1, y1);
     context.lineTo(x1 - headlen * Math.cos(theta + Math.PI / 6), y1 - headlen * Math.sin(theta + Math.PI / 6));
 }
+
+// for testing purposes from console
+function graphComplexNumber(c){
+    let canvas = document.getElementById("canvas");
+    let ctx = canvas.getContext('2d');
+    let [x, y] = toCanvas(c.re, c.im);
+    let [x0, y0] = toCanvas(0, 0);
+    ctx.beginPath(x0, y0);
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+}
+
+//global functions to call from buttons
 window.updateCircles = updateCircles;
 function updateCircles(event){
     circles = event.checked;
@@ -271,7 +275,6 @@ function toggleArrows(event){
 }
 window.changeStartK = changeStartK;
 function changeStartK(event){
-//checks on inputed value
     //make sure entered value is less than end K
     var value = parseInt(event.value);
     if(value >= endK){
@@ -280,10 +283,10 @@ function changeStartK(event){
     document.getElementById("startK").value = value;
     startK = value;
     document.getElementById("K").value = endK - startK;
+    coefficients = fourierTransform(path, startK, endK);
 }
 window.changeEndK = changeEndK;
 function changeEndK(event){
-//checks on inputed value
     //make sure entered value is greater than starting k
     var value = parseInt(event.value);
     if(value <= startK){
@@ -292,6 +295,7 @@ function changeEndK(event){
     document.getElementById("endK").value = value;
     endK = value;
     document.getElementById("K").value = endK - startK;
+    coefficients = fourierTransform(path, startK, endK);
 }
 window.changeK = changeK;
 function changeK(event){
@@ -308,6 +312,7 @@ function changeK(event){
     document.getElementById("endK").value = value/2;
     startK = -value/2;
     endK = value/2;
+    coefficients = fourierTransform(path, startK, endK);
 }
 window.changeTime = changeTime;
 function changeTime(event){
@@ -318,4 +323,24 @@ function changeTime(event){
 window.setTraceColor = setTraceColor;
 function setTraceColor(event){
     traceColor = event.value;
+}
+//enter button onCLick
+window.enter = function(){
+    if(startedPath === true){
+        finishPath();
+    }
+}
+//clear button onClick
+window.c = function(){
+    clearCurve();
+    startedPath = false;
+}
+//settings button onClick
+window.openSettings = function(){
+    settingsOverlay.style.height = "100%";
+    settingsOpen = true;
+}
+window.closeSettings = function(){
+    settingsOverlay.style.height = "0%";
+    settingsOpen = false;
 }
