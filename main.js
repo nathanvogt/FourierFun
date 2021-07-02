@@ -81,6 +81,7 @@ function initGlobalListeners(){
             startedPath = true;
             return 0;
         }
+        e.preventDefault();
     });
     canvas.addEventListener('touchmove', function(e){
         if(startedPath === true){
@@ -100,6 +101,7 @@ function initGlobalListeners(){
                 ctx.stroke();
             }
         }
+        e.preventDefault();
     });
     //mouse listeners
     canvas.addEventListener('mousedown', e => {
