@@ -67,6 +67,13 @@ function resizeCanvas(){
 }
 
 function initGlobalListeners(){
+    //mobile touch listeners
+    canvas.addEventListener('touchstart', function(e){
+        console.log(e.offsetX, e.offsetY)
+    });
+    canvas.addEventListener('touchmove', function(e){
+        console.log(e.offsetX, e.offsetY)
+    });
     //mouse listeners
     canvas.addEventListener('mousedown', e => {
         // place first point in path
@@ -85,7 +92,7 @@ function initGlobalListeners(){
         if(e.buttons === 1 && startedPath === true){
             // add new point only if it is a minimum distance from previous point
             let distance = Math.sqrt( (e.offsetX-x)*(e.offsetX-x) + (e.offsetY-y)*(e.offsetY-y) );
-            if ( distance >= 5) {
+            if ( distance >= 3) {
                 ctx.beginPath();
                 ctx.moveTo(x, y);
                 x = e.offsetX;
