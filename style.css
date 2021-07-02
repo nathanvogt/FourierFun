@@ -10,7 +10,10 @@ html {
 }
 
 #control-buttons {
-    padding-top: 10px;
+    /* border: 1px solid black; */
+    height: 10%;
+    margin-top: 5px;
+    /* padding-top: 10px; */
     text-align: center;
 }
 
@@ -23,12 +26,13 @@ button {
 }
 
 .bruh {
-    padding: 15px 10px;
+    height: 90%;
+    margin-right: 10px;
 }
 
 #settings-button {
-    height: 32px;
-    width: 32px;
+    height: 90%;
+    width: 30px;
     border: none;
     background: none;
     cursor: pointer;
