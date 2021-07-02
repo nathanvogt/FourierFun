@@ -4,6 +4,7 @@ html {
 }
 body {
     overflow-y: hidden;
+    position: relative;
 }
 
 #canvas {
