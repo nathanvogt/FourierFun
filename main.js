@@ -69,10 +69,37 @@ function resizeCanvas(){
 function initGlobalListeners(){
     //mobile touch listeners
     canvas.addEventListener('touchstart', function(e){
-        console.log(e.offsetX, e.offsetY)
+        // place first point in path
+        if(startedPath === false){
+            //get canvas coordinates of touch
+            var offset = e.target.getBoundingClientRect();
+            x = e.touches[0].pageX - offset.x;
+            y = e.touches[0].pageY - offset.y;
+            //clear old curve
+            clearCurve();
+            path.push(new ComplexNumber(toPlane(x, y)));
+            startedPath = true;
+            return 0;
+        }
     });
     canvas.addEventListener('touchmove', function(e){
-        console.log(e.offsetX, e.offsetY)
+        if(startedPath === true){
+            var offset = e.target.getBoundingClientRect();
+            var canvasX = e.touches[0].pageX - offset.x;
+            var canvasY = e.touches[0].pageY - offset.y;
+            // add new point only if it is a minimum distance from previous point
+            let distance = Math.sqrt( (canvasX-x)*(canvasX-x) + (canvasY-y)*(canvasY-y) );
+            if ( distance >= 3) {
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                x = canvasX;
+                y = canvasY;
+                path.push(new ComplexNumber(toPlane(x, y)));
+                ctx.lineTo(x, y);
+                ctx.lineWidth = 0.8;
+                ctx.stroke();
+            }
+        }
     });
     //mouse listeners
     canvas.addEventListener('mousedown', e => {
