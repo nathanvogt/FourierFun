@@ -382,8 +382,12 @@ window.c = function(){
 window.openSettings = function(){
     settingsOverlay.style.height = "100%";
     settingsOpen = true;
+    settingsOverlay.classList.remove("close-settings");
+    settingsOverlay.classList.add("open-settings");
 }
 window.closeSettings = function(){
     settingsOverlay.style.height = "0%";
     settingsOpen = false;
+    settingsOverlay.classList.add("close-settings");
+    settingsOverlay.classList.remove("open-settings");
 }
