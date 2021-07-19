@@ -45,6 +45,8 @@ var displayEndK = 15;
 
 var fadeFactor = 1/80;
 
+var traceUpTo = 0;
+
 //default trace color
 var traceColor = "#00ffff";
 
@@ -168,6 +170,10 @@ function clearCurve(){
     coefficients = [];
     startTime = false;
     tracePath = [];
+    //reset trace up to
+    traceUpTo = 0;
+    //clear old tracePath
+    tracePath = [];
 }
 
 function fourierSketch(coefficients, N){
@@ -208,28 +214,26 @@ function fourierCircleTrace(timeStamp){
     if(startTime === false){
         startTime=timeStamp
     }
-    //calculate dt to change arc length by m
-    var dt = m / arcLengthDerivative(coefficients, t, path.length);
-    //increase t by dt
-    t += dt;
-    //reset dt after a full period
-    if(t >=  path.length){
-        tracePath=[];
-        t = 0;
+    //change in time since start
+    // var dt = (timeStamp-startTime)*1000;
+    
+
+    //reset traceUpTo after a period
+    if(traceUpTo >= tracePath.length){
+        traceUpTo = 0;
     }
-    // console.log("Time: ", t);
     //partial sums of each frequency
-    var sums = fourierFunction(coefficients, t, pathLength, true);
+    // var sums = fourierFunction(coefficients, t, pathLength, true);
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
     //draw arrows
-    if(showArrows){drawArrowsAndCircles(sums);}
-    //add current t output to the trace path
-    tracePath.push(sums[sums.length-1]);
+    // if(showArrows){drawArrowsAndCircles(sums);}
     //draw path trace
-    drawTracePath();
+    drawTracePath(traceUpTo);
+    traceUpTo += 1;
     //TODO:
     //optional: draw original path
     frameReq = requestAnimationFrame(fourierCircleTrace);
+    // console.log("Queued Frame")
 }
 function drawArrowsAndCircles(sums){
     if(showArrows){
@@ -252,12 +256,12 @@ function drawArrowsAndCircles(sums){
         }
     }
 }
-function drawTracePath(){
+function drawTracePath(end){
     ctx.beginPath();
-    let [startX, startY] = toCanvas(tracePath[0].re, tracePath[0].im);
+    let [startX, startY] = toCanvas(tracePath[0][0].re, tracePath[0][0].im);
     ctx.moveTo(startX, startY);
-    for(let n=1;n<tracePath.length;n++){
-        let [newX, newY] = toCanvas(tracePath[n].re, tracePath[n].im);
+    for(let n=1;n<end;n++){
+        let [newX, newY] = toCanvas(tracePath[n][0].re, tracePath[n][0].im);
         ctx.lineTo(newX, newY);
     }
     ctx.lineWidth = 0.8;
@@ -268,6 +272,18 @@ function drawTracePath(){
 
 //OPTIMIZATION: save calculated coefficients and only calculate new coefficients
 
+function createTracePath(){
+    //add points m arc length apart
+    var dt = 0;
+    t = 0;
+    tracePath.push([fourierFunction(coefficients, t, pathLength)[coefficients.length], t]);
+    while(t < pathLength){
+        dt = m / arcLengthDerivative(coefficients, t, pathLength);
+        t += dt;
+        tracePath.push([fourierFunction(coefficients, t, pathLength)[coefficients.length], t]);
+    }
+    t = 0;
+}
 function finishPath(){
     if(path.length < 2){return 0}
     ctx.closePath();
@@ -275,6 +291,8 @@ function finishPath(){
     startedPath = false;
     coefficients = fourierTransform(path, startK, endK);
     pathLength = path.length;
+    //calculate and create tracepath
+    createTracePath();
     //begin animating
     requestAnimationFrame(fourierCircleTrace);
 }
@@ -360,6 +378,7 @@ function changeK(event){
     startK = -value/2;
     endK = value/2;
     coefficients = fourierTransform(path, startK, endK);
+    createTracePath();
 }
 window.changeTime = changeTime;
 function changeTime(event){
