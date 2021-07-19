@@ -1,10 +1,10 @@
 html {
     font-family: Arial, Helvetica, sans-serif;
     color: #dae0e0;
+    overflow-y: hidden;
 }
 body {
     overflow-y: hidden;
-    position: relative;
 }
 
 #canvas {

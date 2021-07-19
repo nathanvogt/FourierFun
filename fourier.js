@@ -64,7 +64,7 @@ export function fourierFunction(coefficients, t, N){
         let [c, k] = coefficients[n];
         //compute theta for this input t
         let theta = 2*Math.PI*k*t/N;
-        //create euler complex number from theta
+        //create euler complex number from theta (polar)
         let ei = new ComplexNumber([theta, 1], true);
         //multiply by coefficient
         let step = ComplexNumber.multiply(c, ei).scale(1/N);
@@ -74,4 +74,24 @@ export function fourierFunction(coefficients, t, N){
         sums.push(sum);
     }
     return sums;
+}
+//derivative of arc length function
+export function arcLengthDerivative(coefficients, t, N){
+    //F'(t) = ( (sum{k=a}{b}(r.k)*(w*k)*(-sin(wf(theta)))) )^1/2
+    const w = 2*Math.PI/N;
+    var x_sum = 0;
+    var y_sum = 0;
+    //iterate over each frequency (coefficient)
+    for(let n=0;n<coefficients.length;n++){
+        let [c, k] = coefficients[n];
+        //get the radius and offset of this frequency's coefficient
+        let r = c.radius;
+        let offset = c.theta;
+        //add the x dimension contribution by this frequency
+        x_sum += r*w*k*(-1)*Math.sin(w*k*t+offset);
+        //add the y dimension contribution by this frequency
+        y_sum += r*w*k*Math.cos(w*k*t+offset);
+    }
+    //magnitude of derivative of vector valued Fourier function (derivative of arc length)
+    return Math.sqrt(x_sum*x_sum + y_sum*y_sum);
 }

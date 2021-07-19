@@ -1,5 +1,5 @@
 import {ComplexNumber} from '/modules.js'
-import {fourierTransform, fourierFunction} from '/fourier.js'
+import {fourierTransform, fourierFunction, arcLengthDerivative} from '/fourier.js'
 
 var canvas;
 var ctx;
@@ -20,12 +20,17 @@ var coefficients = [];
 
 var startTime = false;
 
+//arc length increment
+var m = 50;
+
 var frameReq;
 
 var tracePath = [];
 
 var timeScale = 1/150;
 var timeScaleChanged = false;
+
+var t = 0;
 
 var circles = true;
 
@@ -50,6 +55,7 @@ window.path = path;
 
 document.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOM fully loaded and parsed');
+    console.log("Branch: arc-length")
     settingsOverlay = document.getElementById("settings");
     canvas = document.getElementById("canvas");
     //set canvas dimensinos
@@ -198,24 +204,22 @@ function fourierTrace(timeStamp){
     frameReq = requestAnimationFrame(fourierTrace);
 }
 function fourierCircleTrace(timeStamp){
-    //start rendering circles
+    //start tracking time elapsed
     if(startTime === false){
         startTime=timeStamp
     }
-    var dt = (timeStamp-startTime)*(timeScale);
-     //clear curve when timescale is changed
-    if(timeScaleChanged === true){
-        tracePath = []
-        ctx.clearRect(0, 0, WIDTH, HEIGHT);
-        timeScaleChanged = false;
-    }
+    //calculate dt to change arc length by m
+    var dt = m / arcLengthDerivative(coefficients, t, path.length);
+    //increase t by dt
+    t += dt;
     //reset dt after a full period
-    if(dt >=  path.length){
+    if(t >=  path.length){
         tracePath=[];
-        startTime = timeStamp;
+        t = 0;
     }
+    // console.log("Time: ", t);
     //partial sums of each frequency
-    var sums = fourierFunction(coefficients, dt, pathLength, true);
+    var sums = fourierFunction(coefficients, t, pathLength, true);
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
     //draw arrows
     if(showArrows){drawArrowsAndCircles(sums);}
