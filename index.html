@@ -34,14 +34,14 @@
                <h2>Show Arrows:</h2>
                <input id="showArrows" type="checkbox" checked="true" onchange="toggleArrows(this)">
             </div>
-            <div class="settings-row">
+            <!-- <div class="settings-row">
                <h2>First Frequency:</h2>
                <input type="number" id="startK" name="Starting Frequency"
                min="-200" max="199" step="1" value="-15" oninput="changeStartK(this)">
                <h2>Final Frequency:</h2>
                <input type="number" id="endK" name="Ending Frequency"
                min="-199" max="200" step="1" value="15" oninput="changeEndK(this)">
-            </div>
+            </div> -->
             <div class="settings-row">
                <h2>Number of Circles:</h2>
                <input type="number" id="K" name="Number of Frequencies"
@@ -49,9 +49,9 @@
             </div>
             <div class="settings-row">
                <h2>Time Scale:</h2>
-               <input type="range" min="5" max="300" value="100" class="slider" id="timeScale"
+               <input type="range" min="1" max="100" value="25" class="slider" id="timeScale"
                oninput="this.nextElementSibling.innerHTML = this.value; changeTime(this)">
-               <p name="result" id="time-result">100</p>
+               <p name="result" id="time-result">25</p>
             </div>
             <div class="settings-row">
                <h2>Curve Color</h2>
