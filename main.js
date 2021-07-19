@@ -223,13 +223,14 @@ function fourierCircleTrace(timeStamp){
         traceUpTo = 0;
     }
     //partial sums of each frequency
-    // var sums = fourierFunction(coefficients, t, pathLength, true);
+    var current_t = tracePath[traceUpTo][1];
+    var sums = fourierFunction(coefficients, current_t, pathLength, true);
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
     //draw arrows
-    // if(showArrows){drawArrowsAndCircles(sums);}
+    if(showArrows){drawArrowsAndCircles(sums);}
     //draw path trace
     drawTracePath(traceUpTo);
-    traceUpTo += 1;
+    traceUpTo += 5;
     //TODO:
     //optional: draw original path
     frameReq = requestAnimationFrame(fourierCircleTrace);
@@ -378,6 +379,8 @@ function changeK(event){
     startK = -value/2;
     endK = value/2;
     coefficients = fourierTransform(path, startK, endK);
+    //clear old trace path before creating new one
+    tracePath = [];
     createTracePath();
 }
 window.changeTime = changeTime;
