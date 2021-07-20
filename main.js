@@ -166,7 +166,6 @@ function clearCurve(){
     pathLength = 0;
     coefficients = [];
     startTime = false;
-    tracePath = [];
     //reset trace up to
     traceUpTo = 0;
     //clear old tracePath
@@ -219,13 +218,12 @@ function fourierCircleTrace(timeStamp){
         startTime=timeStamp
     }
     //change in time since start
-    var elapsed = parseInt((timeScale*(timeStamp-startTime)/1000)%tracePath.length);
-    // console.log(elapsed)
-    traceUpTo = elapsed;
+    var dt = timeScale*(timeStamp-startTime)/1000;
+    traceUpTo = parseInt(dt%tracePath.length);
  
     //partial sums of each frequency
     var current_t = tracePath[traceUpTo][1];
-    var sums = fourierFunction(coefficients, current_t, pathLength, true);
+    var sums = fourierFunction(coefficients, dt, pathLength, true);
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
     //draw arrows
     if(showArrows){drawArrowsAndCircles(sums);}
@@ -239,17 +237,19 @@ function fourierCircleTrace(timeStamp){
 function drawArrowsAndCircles(sums){
     if(showArrows){
         for(let n=2;n<sums.length;n++){
-            // let headLen = 2*5/n;
-            let headLen = 8-(1/10)*(n-2)
             ctx.beginPath();
             let [x0, y0] = toCanvas(sums[n-1].re, sums[n-1].im);
             let [x1, y1] = toCanvas(sums[n].re, sums[n].im);
+            //euclidean distance of this sum step
+            var radius = Math.sqrt((x1-x0)*(x1-x0)+(y1-y0)*(y1-y0));
+            //headlen depending on radius of circle
+            let headLen = Math.min(radius/3, 8)
             drawArrow(x0, y0, x1, y1, headLen);
             ctx.lineWidth = 0.8-fadeFactor*(n-2);
             ctx.stroke();
             if(circles && n <= 150){
                 ctx.beginPath();
-                let radius = ComplexNumber.add(sums[n], sums[n-1].scale(-1)).radius;
+                // let radius = ComplexNumber.add(sums[n], sums[n-1].scale(-1)).radius;
                 ctx.arc(x0, y0, radius, 0, 2*Math.PI);
                 ctx.lineWidth = 0.2;
                 ctx.stroke();
