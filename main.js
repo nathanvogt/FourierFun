@@ -212,17 +212,32 @@ function fourierTrace(timeStamp){
     frameReq = requestAnimationFrame(fourierTrace);
 }
 
+var previousTraceUpTo = 0;
+var prev_dt = 0;
 function fourierCircleTrace(timeStamp){
     //start tracking time elapsed
     if(startTime === false){
         startTime=timeStamp
     }
-    //change in time since start
-    var dt = timeScale*(timeStamp-startTime)/1000;
-    traceUpTo = parseInt(dt%tracePath.length);
- 
-    //partial sums of each frequency
-    var current_t = tracePath[traceUpTo][1];
+    //change in seconds since start
+    var dt = (timeScale*(timeStamp-startTime)/1000)%pathLength;
+    // dt/pathLength = traceUpTo/tracePath.length
+    // traceUpTo = parseInt(dt/pathLength*tracePath.length%tracePath.length);
+
+    //reset after full period
+    if(dt < prev_dt){previousTraceUpTo = 0;}
+    prev_dt = dt;
+    //find closest point in tracepath to current dt
+    for (let i=previousTraceUpTo;i<tracePath.length;i++) {
+        //get time stamp of this trace point
+        let stamp = tracePath[i][1];
+        if(stamp > dt){
+            break;
+        }
+        traceUpTo = i;
+    }
+    previousTraceUpTo = traceUpTo;
+
     var sums = fourierFunction(coefficients, dt, pathLength, true);
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
     //draw arrows
