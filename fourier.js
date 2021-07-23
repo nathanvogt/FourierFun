@@ -1,7 +1,11 @@
 import {ComplexNumber} from '/modules.js'
 
 //get coefficient for frequency k
-export function fourierCoefficient(path, k){
+export function fourierCoefficient(path, k, cache){
+    //check if this frequency is cached
+    if(cache.exists(k)){
+        return cache.grab(k);
+    }
     //start sum at zero (complex number)
     let sum = new ComplexNumber([0, 0]);
     //integral of path times silencer
@@ -16,13 +20,17 @@ export function fourierCoefficient(path, k){
         //add to the sum
         sum = ComplexNumber.add(sum, step)
     }
-    return sum.scale(1/path.length);
+    //scale sum
+    sum.scale(1/path.length);
+    //insert frequency's coefficient into cache
+    cache.insert(k, sum);
+    return sum;
 }
 //get coefficients for frequencies between start and end
-export function fourierTransform(path, start, end){
+export function fourierTransform(path, start, end, cache){
     var coefficients = [];
     for(let k=start;k<end+1;k++){
-        coefficients.push([fourierCoefficient(path, k), k]);
+        coefficients.push([fourierCoefficient(path, k, cache), k]);
     }
     return sortCoefficientsLength(coefficients);
     return coefficients;

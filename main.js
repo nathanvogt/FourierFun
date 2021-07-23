@@ -1,4 +1,4 @@
-import {ComplexNumber} from '/modules.js'
+import {ComplexNumber, CoefficientCache} from '/modules.js'
 import {fourierTransform, fourierFunction, arcLengthDerivative} from '/fourier.js'
 
 var canvas;
@@ -17,6 +17,8 @@ var path = [];
 var pathLength;
 
 var coefficients = [];
+
+var coefCache = new CoefficientCache();
 
 var frameReq;
 
@@ -162,6 +164,8 @@ function clearCurve(){
     pathLength = 0;
     //reset calculated coefficients
     coefficients = [];
+    //remove coefficient cache
+    coefCache.reset();
     //reset time inputs
     prevTimeStamp = false;
     t = 0;
@@ -317,7 +321,7 @@ function finishPath(){
     ctx.closePath();
     ctx.stroke();
     startedPath = false;
-    coefficients = fourierTransform(path, startK, endK);
+    coefficients = fourierTransform(path, startK, endK, coefCache);
     pathLength = path.length;
     //calculate and create tracepath
     createTracePath();
@@ -404,7 +408,7 @@ function changeK(event){
     // document.getElementById("endK").value = value/2;
     startK = -value/2;
     endK = value/2;
-    coefficients = fourierTransform(path, startK, endK);
+    coefficients = fourierTransform(path, startK, endK, coefCache);
     //clear old trace path before creating new one
     tracePath = [];
     previousTraceUpTo = 0;

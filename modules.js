@@ -44,3 +44,26 @@ export function drawArrow(x0, y0, x1, y1, headlen=2) {
     context.moveTo(x1, y1);
     context.lineTo(x1 - headlen * Math.cos(theta + Math.PI / 6), y1 - headlen * Math.sin(theta + Math.PI / 6));
 }
+export class CoefficientCache {
+    constructor(){
+        this.cache = [];
+    }
+    insert(frequency, coefficient){
+        this.cache[frequency] = coefficient;
+    }
+    grab(frequency){
+        return this.cache[frequency];
+    }
+    exists(frequency){
+        if(this.cache[frequency] !== undefined){
+            return true;
+        }else if(this.cache[frequency] === undefined){
+            return false;
+        }else{
+            throw Error("Array Error (BRUH)");
+        }
+    }
+    reset(){
+        this.cache = [];
+    }
+}
