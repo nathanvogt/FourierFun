@@ -163,8 +163,10 @@ function initGlobalListeners(){
 
 function clearCurve(){
     cancelAnimationFrame(frameReq);
+    //disable pausing/playing (no longer rendering)
     playing = false;
     pausePlayButton.innerHTML = "Pause";
+    //clear canvas
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
     //clear user generated path
     path = [];
@@ -238,13 +240,14 @@ function animateFourierFunction(timeStamp){
     //change in seconds since last frame times timescale
     var dt;
     if(prevTimeStamp === -1){
+        //animation is paused
         dt = 0;
     }else{
+        //not paused
         dt = (timeScale*(timeStamp-prevTimeStamp)/1000);
         //update previous time stamp
         prevTimeStamp = timeStamp;
     }
-    
     
     //increase time input
     t = (t + dt) % pathLength;
@@ -331,18 +334,21 @@ function createTracePath(){
     tracePath.push([start, input]);
 }
 function finishPath(){
+    //make sure there is a path
     if(path.length < 2){return 0}
     ctx.closePath();
     ctx.stroke();
+    //no longer making user generated path
     startedPath = false;
+    //calculate coefficients for transform of user generated path
     coefficients = fourierTransform(path, startK, endK, coefCache);
+    //user generated path length
     pathLength = path.length;
     //calculate and create tracepath
     createTracePath();
-    //test
-    // tracePathSketch();
-    //begin animating
+    //allow pausing/playing (circle animation is starting)
     playing = true;
+    //begin animating
     frameReq = requestAnimationFrame(animateFourierFunction);
 }
 function toPlane(x, y){
@@ -408,9 +414,11 @@ function changeEndK(event){
     document.getElementById("K").value = endK - startK;
     coefficients = fourierTransform(path, startK, endK);
 }
-window.changeK = changeK;
-function changeK(event){
-    var value = parseInt(event.value);
+window.changeKButton = function(event){
+    changeK(event.value);
+}
+function changeK(k){
+    var value = parseInt(k);
     //make sure value is positive
     if(value < 2){
         value = 2;
@@ -428,6 +436,12 @@ function changeK(event){
     tracePath = [];
     previousTraceUpTo = 0;
     createTracePath();
+}
+window.decreaseCircles = function(){
+    changeK(coefficients.length-3);
+}
+window.increaseCircles = function(){
+    changeK(coefficients.length + 1);
 }
 window.changeTime = changeTime;
 function changeTime(event){
@@ -456,12 +470,12 @@ window.toggleAnimation = function(event){
     if(!playing){return 0;}
     var status = event.innerHTML;
     if(status === "Pause"){
+        //pause circle animation
         prevTimeStamp = -1;
-        // cancelAnimationFrame(frameReq);
         pausePlayButton.innerHTML = "Play";
     }else if(status === "Play"){
+        //restart tracking time and rendering circles
         prevTimeStamp = false;
-        // requestAnimationFrame(animateFourierFunction);
         pausePlayButton.innerHTML = "Pause";
     }
 }

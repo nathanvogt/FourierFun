@@ -24,14 +24,17 @@ body {
 button {
     border: 0;
     padding: 0;
-    margin: 0px 5px;
+    margin: 0px 2px;
     vertical-align: middle;
     cursor: pointer;
 }
 
 .bruh {
     height: 90%;
-    margin-right: 10px;
+    margin-right: 5px;
+}
+.increment {
+    width: 15px;
 }
 
 #settings-button {
