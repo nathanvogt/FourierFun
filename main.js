@@ -6,6 +6,8 @@ var ctx;
 
 var settingsOverlay;
 
+var pausePlayButton;
+
 var WIDTH;
 var HEIGHT;
 
@@ -47,12 +49,15 @@ var traceColor = "#00ffff";
 
 var settingsOpen = false;
 
+var playing = false;
+
 //for testing purposes in console
 window.path = path;
 
 document.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOM fully loaded and parsed');
     settingsOverlay = document.getElementById("settings");
+    pausePlayButton = document.getElementById("pausePlayButton");
     canvas = document.getElementById("canvas");
     //set canvas dimensinos
     resizeCanvas();
@@ -158,6 +163,8 @@ function initGlobalListeners(){
 
 function clearCurve(){
     cancelAnimationFrame(frameReq);
+    playing = false;
+    pausePlayButton.innerHTML = "Pause";
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
     //clear user generated path
     path = [];
@@ -229,9 +236,16 @@ function animateFourierFunction(timeStamp){
         prevTimeStamp=timeStamp
     }
     //change in seconds since last frame times timescale
-    var dt = (timeScale*(timeStamp-prevTimeStamp)/1000);
-    //update previous time stamp
-    prevTimeStamp = timeStamp;
+    var dt;
+    if(prevTimeStamp === -1){
+        dt = 0;
+    }else{
+        dt = (timeScale*(timeStamp-prevTimeStamp)/1000);
+        //update previous time stamp
+        prevTimeStamp = timeStamp;
+    }
+    
+    
     //increase time input
     t = (t + dt) % pathLength;
     //reset prevTraceUpTo after full period
@@ -328,7 +342,8 @@ function finishPath(){
     //test
     // tracePathSketch();
     //begin animating
-    requestAnimationFrame(animateFourierFunction);
+    playing = true;
+    frameReq = requestAnimationFrame(animateFourierFunction);
 }
 function toPlane(x, y){
     return [x-WIDTH/2, HEIGHT/2-y];
@@ -435,6 +450,22 @@ window.c = function(){
     clearCurve();
     startedPath = false;
 }
+//toggle play/pause button
+window.toggleAnimation = function(event){
+    //only toggle while playing
+    if(!playing){return 0;}
+    var status = event.innerHTML;
+    if(status === "Pause"){
+        prevTimeStamp = -1;
+        // cancelAnimationFrame(frameReq);
+        pausePlayButton.innerHTML = "Play";
+    }else if(status === "Play"){
+        prevTimeStamp = false;
+        // requestAnimationFrame(animateFourierFunction);
+        pausePlayButton.innerHTML = "Pause";
+    }
+}
+
 //settings button onClick
 window.openSettings = function(){
     settingsOverlay.style.height = "100%";
