@@ -27,6 +27,7 @@ button {
     margin: 0px 2px;
     vertical-align: middle;
     cursor: pointer;
+    background-color: gainsboro;
 }
 
 .bruh {
@@ -34,7 +35,7 @@ button {
     margin-right: 5px;
 }
 .increment {
-    width: 15px;
+    width: 35px;
 }
 
 #settings-button {
@@ -99,7 +100,7 @@ h2 {
     display: inline;
 }
 
-#circles, #showArrows {
+#circles, #showArrows, #showEntireTracePath {
     border-radius: 5px;
     width: 30px;
     height: 30px;

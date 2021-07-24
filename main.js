@@ -51,6 +51,8 @@ var settingsOpen = false;
 
 var playing = false;
 
+var showEntireTracePath = false;
+
 //for testing purposes in console
 window.path = path;
 
@@ -239,11 +241,11 @@ function animateFourierFunction(timeStamp){
     }
     //change in seconds since last frame times timescale
     var dt;
+    //animation is paused
     if(prevTimeStamp === -1){
-        //animation is paused
         dt = 0;
-    }else{
-        //not paused
+    }else{ //not paused
+        //change in time since last frame (times timescale)
         dt = (timeScale*(timeStamp-prevTimeStamp)/1000);
         //update previous time stamp
         prevTimeStamp = timeStamp;
@@ -257,17 +259,23 @@ function animateFourierFunction(timeStamp){
     }
     //update previous time input
     prev_t = t;
-    //find closest point in tracepath to current t (previousTraceUpTo is an optimization that reduces length of for loop)
-    for (let i=previousTraceUpTo;i<tracePath.length;i++) {
-        //get time stamp of this trace point
-        let timeStamp = tracePath[i][1];
-        if(timeStamp > t){
-            break;
+    //show entire trace path
+    if(showEntireTracePath){
+        traceUpTo = tracePath.length;
+        //for when show entire trace path is disabled
+        previousTraceUpTo = 0;
+    }else{      //don't show entire trace path, only up until current time stamp
+        //find closest point in tracepath to current t (previousTraceUpTo is an optimization that reduces length of for loop)
+        for (let i=previousTraceUpTo;i<tracePath.length;i++) {
+            //get time stamp of this trace point
+            let timeStamp = tracePath[i][1];
+            if(timeStamp > t){
+                break;
+            }
+            traceUpTo = i;
         }
-        traceUpTo = i;
+        previousTraceUpTo = traceUpTo;
     }
-    previousTraceUpTo = traceUpTo;
-
     var sums = fourierFunction(coefficients, t, pathLength, true);
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
     //draw arrows
@@ -479,7 +487,10 @@ window.toggleAnimation = function(event){
         pausePlayButton.innerHTML = "Pause";
     }
 }
-
+//choose whether to show entire trace path
+window.showEntireTracePath = function(event){
+    showEntireTracePath = event.checked;
+}
 //settings button onClick
 window.openSettings = function(){
     settingsOverlay.style.height = "100%";
