@@ -61,6 +61,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
     settingsOverlay = document.getElementById("settings");
     pausePlayButton = document.getElementById("pausePlayButton");
     canvas = document.getElementById("canvas");
+    //initialize show entire trace path button as unchecked
+    document.getElementById("showEntireTracePath").checked = false;
     //set canvas dimensinos
     resizeCanvas();
     //get canvas context

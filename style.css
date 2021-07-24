@@ -28,6 +28,10 @@ button {
     vertical-align: middle;
     cursor: pointer;
     background-color: gainsboro;
+    user-select: none;
+}
+button:focus {
+    outline: none;
 }
 
 .bruh {
