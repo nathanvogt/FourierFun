@@ -19,6 +19,7 @@ body {
     margin-top: 5px;
     /* padding-top: 10px; */
     text-align: center;
+    touch-action: manipulation;
 }
 
 button {
