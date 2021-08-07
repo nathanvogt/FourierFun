@@ -1,5 +1,5 @@
-import {ComplexNumber, CoefficientCache} from '/modules.js'
-import {fourierTransform, fourierFunction, arcLengthDerivative} from '/fourier.js'
+import {ComplexNumber, CoefficientCache} from 'https://nathanvogt.github.io/FourierFun/modules.js';
+import {fourierTransform, fourierFunction, arcLengthDerivative} from 'https://nathanvogt.github.io/FourierFun/fourier.js';
 
 var canvas;
 var ctx;

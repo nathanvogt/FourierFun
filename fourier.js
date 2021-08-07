@@ -1,4 +1,4 @@
-import {ComplexNumber} from '/modules.js'
+import {ComplexNumber} from 'https://nathanvogt.github.io/FourierFun/modules.js';
 
 //get coefficient for frequency k
 export function fourierCoefficient(path, k, cache){
