@@ -1,4 +1,4 @@
-import {ComplexNumber, CoefficientCache} from 'modules.js'
+import {ComplexNumber, CoefficientCache} from '/modules.js'
 import {fourierTransform, fourierFunction, arcLengthDerivative} from '/fourier.js'
 
 var canvas;
