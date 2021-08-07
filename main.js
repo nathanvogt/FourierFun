@@ -1,4 +1,4 @@
-import {ComplexNumber, CoefficientCache} from '/modules.js'
+import {ComplexNumber, CoefficientCache} from 'modules.js'
 import {fourierTransform, fourierFunction, arcLengthDerivative} from '/fourier.js'
 
 var canvas;
@@ -162,7 +162,10 @@ function initGlobalListeners(){
     //resize listener
     window.addEventListener('resize', function(e){
         resizeCanvas();
-    })
+    });
+    window.addEventListener("orientationchange", function(e){
+        resizeCanvas();
+    });
 }
 
 function clearCurve(){
